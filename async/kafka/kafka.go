@@ -104,7 +104,7 @@ func ClaimMessage(ctx context.Context, msg *sarama.ConsumerMessage, d encoding.D
 	sp, ctxCh := trace.ConsumerSpan(ctx, trace.ComponentOpName(trace.KafkaConsumerComponent, msg.Topic),
 		trace.KafkaConsumerComponent, corID, mapHeader(msg.Headers))
 	ctxCh = correlation.ContextWithID(ctxCh, corID)
-	ctxCh = log.WithContext(ctxCh, log.Sub(map[string]interface{}{"correlationID": corID}))
+	ctxCh = log.WithContext(ctxCh, log.Sub(map[string]interface{}{correlation.ID: corID}))
 
 	dec, err := determineDecoder(d, msg, sp)
 	if err != nil {
