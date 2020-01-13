@@ -34,27 +34,6 @@ func NewMessageWithKey(t string, b interface{}, k string) (*Message, error) {
 	return &Message{topic: t, body: b, key: &k}, nil
 }
 
-// NewJSONMessage creates a new message with a JSON encoded body.
-func NewJSONMessage(t string, d interface{}) (*Message, error) {
-	b, err := json.Encode(d)
-	if err != nil {
-		return nil, fmt.Errorf("failed to JSON encode: %w", err)
-	}
-	return &Message{topic: t, body: b}, nil
-}
-
-// NewJSONMessageWithKey creates a new message with a JSON encoded body and a message key.
-func NewJSONMessageWithKey(t string, d interface{}, k string) (*Message, error) {
-	if k == "" {
-		return nil, errors.New("key string can not be null")
-	}
-	b, err := json.Encode(d)
-	if err != nil {
-		return nil, fmt.Errorf("failed to JSON encode: %w", err)
-	}
-	return &Message{topic: t, body: b, key: &k}, nil
-}
-
 // Producer interface for Kafka.
 type Producer interface {
 	Send(ctx context.Context, msg *Message) error
