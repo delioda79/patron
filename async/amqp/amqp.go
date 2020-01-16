@@ -32,7 +32,7 @@ type message struct {
 	del     *amqp.Delivery
 	dec     encoding.DecodeRawFunc
 	requeue bool
-	queue   string
+	source  string
 }
 
 func (m *message) Context() context.Context {
@@ -57,7 +57,7 @@ func (m *message) Nack() error {
 
 // Source returns the queue's name where the message arrived.
 func (m *message) Source() string {
-	return m.queue
+	return m.source
 }
 
 // Exchange represents an AMQP exchange.
@@ -194,7 +194,7 @@ func (c *consumer) Consume(ctx context.Context) (<-chan async.Message, <-chan er
 					del:     &d,
 					span:    sp,
 					requeue: c.requeue,
-					queue:   c.queue,
+					source:  c.queue,
 				}
 			}
 		}

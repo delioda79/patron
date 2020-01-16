@@ -25,11 +25,11 @@ func Test_message(t *testing.T) {
 	sp := opentracing.StartSpan("test")
 	ctx := context.Background()
 	m := message{
-		ctx:   ctx,
-		del:   del,
-		dec:   json.DecodeRaw,
-		span:  sp,
-		queue: "thequeue",
+		ctx:    ctx,
+		del:    del,
+		dec:    json.DecodeRaw,
+		span:   sp,
+		source: "thequeue",
 	}
 	assert.Equal(t, ctx, m.Context())
 	var data string
