@@ -45,20 +45,20 @@ func TestNewMessageWithKey(t *testing.T) {
 }
 
 func TestNewSyncProducer_Failure(t *testing.T) {
-	got, err := NewAsyncProducer([]string{})
+	got, err := NewBuilder([]string{}).Create()
 	assert.Error(t, err)
 	assert.Nil(t, got)
 }
 
 func TestNewSyncProducer_Option_Failure(t *testing.T) {
-	got, err := NewAsyncProducer([]string{"xxx"}, Version("xxxx"))
+	got, err := NewBuilder([]string{"xxx"}).WithVersion("xxxx").Create()
 	assert.Error(t, err)
 	assert.Nil(t, got)
 }
 
 func TestNewSyncProducer_Success(t *testing.T) {
 	seed := createKafkaBroker(t, false)
-	got, err := NewAsyncProducer([]string{seed.Addr()}, Version(sarama.V0_8_2_0.String()))
+	got, err := NewBuilder([]string{seed.Addr()}).WithVersion(sarama.V0_8_2_0.String()).Create()
 	assert.NoError(t, err)
 	assert.NotNil(t, got)
 }
@@ -66,7 +66,7 @@ func TestNewSyncProducer_Success(t *testing.T) {
 func TestAsyncProducer_SendMessage_Close(t *testing.T) {
 	msg := NewMessage("TOPIC", "TEST")
 	seed := createKafkaBroker(t, true)
-	ap, err := NewAsyncProducer([]string{seed.Addr()}, Version(sarama.V0_8_2_0.String()))
+	ap, err := NewBuilder([]string{seed.Addr()}).WithVersion(sarama.V0_8_2_0.String()).Create()
 	assert.NoError(t, err)
 	assert.NotNil(t, ap)
 	err = trace.Setup("test", "1.0.0", "0.0.0.0:6831", jaeger.SamplerTypeProbabilistic, 0.1)
@@ -84,7 +84,7 @@ func TestAsyncProducer_SendMessage_WithKey(t *testing.T) {
 	assert.Equal(t, testKey, *msg.key)
 	assert.NoError(t, err)
 	seed := createKafkaBroker(t, true)
-	ap, err := NewAsyncProducer([]string{seed.Addr()}, Version(sarama.V0_8_2_0.String()))
+	ap, err := NewBuilder([]string{seed.Addr()}).WithVersion(sarama.V0_8_2_0.String()).Create()
 	assert.NoError(t, err)
 	assert.NotNil(t, ap)
 	err = trace.Setup("test", "1.0.0", "0.0.0.0:6831", jaeger.SamplerTypeProbabilistic, 0.1)
@@ -144,12 +144,12 @@ func TestSendWithCustomEncoder(t *testing.T) {
 			msg, _ := NewMessageWithKey("TOPIC", tt.data, tt.key)
 
 			seed := createKafkaBroker(t, true)
-			ap, _ := NewAsyncProducer([]string{seed.Addr()}, Version(sarama.V0_8_2_0.String()))
-			err := Encoder(tt.enc, tt.ct)(ap)
+			ap, err := NewBuilder([]string{seed.Addr()}).WithVersion(sarama.V0_8_2_0.String()).WithEncoder(tt.enc, tt.ct).Create()
 			if tt.enc != nil {
 				assert.NoError(t, err)
 			} else {
 				assert.Error(t, err)
+				return
 			}
 			assert.NotNil(t, ap)
 
